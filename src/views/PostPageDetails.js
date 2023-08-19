@@ -81,7 +81,11 @@ export default function PostPageDetails() {
             <Card>
               <Card.Body>
                 <Card.Title>{caption}</Card.Title>
-                <Card.Text className="bg-info m-2 p-3 rounded">{comment}</Card.Text>
+
+                <Card.Text className="m-2 p-3 rounded" style={{backgroundColor: "#BDFDFE"}}>
+                  {comment}
+                </Card.Text>
+                
                 <Card.Link href={`/update/${id}`}>Edit</Card.Link>
                 <Card.Link
                   onClick={() => deletePost(id)}

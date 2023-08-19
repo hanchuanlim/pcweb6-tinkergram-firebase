@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Container, Image, Nav, Navbar, Row } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { collection, getDocs } from "firebase/firestore";
 import { db, auth } from "../firebase";
 import { signOut } from "firebase/auth";
@@ -10,6 +10,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 export default function PostPageHome() {
   const [user] = useAuthState(auth);
   const [posts, setPosts] = useState([]);
+  const navigate = useNavigate();
 
    async function getAllPosts() {
     const query = await getDocs(collection(db, "posts"));
@@ -33,8 +34,16 @@ export default function PostPageHome() {
         <Container>
           <Navbar.Brand href="/" style={{color:"#FF0088", fontSize:"3rem", fontFamily: "Brush Script MT, cursive"  }} >Tinkergram</Navbar.Brand>
           <Nav>
-            <Nav.Link href="/add">New Post</Nav.Link>
-            {user && <Nav.Link onClick={() => signOut(auth)}>🚪</Nav.Link> }
+            {
+          (user && <Nav.Link href="/add">New Post</Nav.Link>)
+            ||  
+            <Nav.Link onClick={()=>navigate("/login")}>LogIn / SignUp </Nav.Link> 
+            }
+            {
+            
+            (user && <Nav.Link onClick={() => signOut(auth)}>🚪</Nav.Link>) 
+            
+            }
           </Nav>
         </Container>
       </Navbar>
