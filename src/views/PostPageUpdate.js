@@ -12,7 +12,8 @@ export default function PostPageUpdate() {
     const id = params.id;
     const [caption, setCaption] = useState("");
     const [image, setImage] = useState("");
-    const [imageName, setImageName] = useState("");
+    const [imageName, setImageName]=useState("")
+    const [comment, setComment] = useState("");
     const [user, loading] = useAuthState(auth);
     const [previewImage, setPreviewImage] = useState("https://zca.sg/img/placeholder");
     const navigate = useNavigate();
@@ -20,19 +21,26 @@ export default function PostPageUpdate() {
     async function updatePost() {
 
         let imageURL = previewImage;
+        let timestamp = Date.now();
+        let newImageName = imageName;
 
         if (image) {
+            newImageName = timestamp+image.name;
             const deleteRef = ref(storage, `images/${imageName}`);
             await deleteObject(deleteRef);
             console.log("old image has been deleted from gcs!");
             
-            const imageReference = ref(storage, `images/${image.name}`);
+            const imageReference = ref(storage, `images/${newImageName}`);
             const response = await uploadBytes(imageReference, image);
             imageURL = await getDownloadURL(response.ref);
+            console.log(timestamp+image.name)
+            // setImageName(timestamp+image.name);
+
+            console.log(imageName);
         }
 
-
-        await updateDoc(doc(db, "posts", id), { caption, image: imageURL });
+        console.log(imageName);
+        await updateDoc(doc(db, "posts", id), { caption, image: imageURL, imageName: newImageName, comment });
         navigate("/");
 
     }
@@ -43,6 +51,7 @@ export default function PostPageUpdate() {
         setCaption(post.caption);
         setPreviewImage(post.image);
         setImageName(post.imageName);
+        setComment(post.comment);
     }
 
     useEffect(() => {
@@ -55,7 +64,7 @@ export default function PostPageUpdate() {
         <div>
             <Navbar variant="light" bg="light">
                 <Container>
-                    <Navbar.Brand href="/">Tinkergram</Navbar.Brand>
+                    <Navbar.Brand href="/"  style={{color:"#FF0088", fontSize:"3rem", fontFamily: "Brush Script MT, cursive"  }}  >Tinkergram</Navbar.Brand>
                     <Nav>
                         <Nav.Link href="/add">New Post</Nav.Link>
                         <Nav.Link onClick={() => signOut(auth)}>🚪</Nav.Link>
@@ -103,6 +112,18 @@ export default function PostPageUpdate() {
                         />
 
                     </Form.Group>
+
+                    <Form.Group className="mb-3" controlId="comment">
+                        <Form.Label>Comment</Form.Label>
+                        <Form.Control
+                            as="textarea"
+                            placeholder="#Comments"
+                            value={comment}
+                            onChange={(textarea) => setComment(textarea.target.value)}
+                        />
+                    </Form.Group>
+
+
                     <Button variant="primary" onClick={(e) => updatePost()}>
                         Submit
                     </Button>

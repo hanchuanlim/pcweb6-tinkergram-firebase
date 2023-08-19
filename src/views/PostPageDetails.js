@@ -1,20 +1,32 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import { Card, Col, Container, Image, Nav, Navbar, Row } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db, storage} from "../firebase";
 import { signOut} from "firebase/auth";
-import {deleteDoc, doc, getDoc} from "firebase/firestore";
+import {deleteDoc, doc, getDoc, updateDoc} from "firebase/firestore";
 import { ref, deleteObject} from "firebase/storage";
 
 export default function PostPageDetails() {
   const [caption, setCaption] = useState("");
   const [image, setImage] = useState("");
   const [imageName, setImageName] = useState("");
+  const [comment, setComment] = useState("");
   const params = useParams();
   const id = params.id;
   const [user, loading] = useAuthState(auth);
   const navigate = useNavigate();
+
+
+  async function likePost(id) {
+    const postDocument = await getDoc(doc(db, "posts", id));
+    const likescollection = postDocument.collection("likes")
+    likescollection.add({like: user});
+
+
+    // await updateDoc(doc(db, "posts", id), { likecount: likescollection.count()});
+
+  }
 
 
   async function deletePost(id) {
@@ -39,6 +51,7 @@ export default function PostPageDetails() {
     setCaption(post.caption);
     setImage(post.image);
     setImageName(post.imageName);
+    setComment(post.comment);
   }
 
   useEffect(() => {
@@ -52,7 +65,7 @@ export default function PostPageDetails() {
     <>
       <Navbar variant="light" bg="light">
         <Container>
-          <Navbar.Brand href="/">Tinkergram</Navbar.Brand>
+          <Navbar.Brand href="/"  style={{color:"#FF0088", fontSize:"3rem", fontFamily: "Brush Script MT, cursive"  }} >Tinkergram</Navbar.Brand>
           <Nav>
             <Nav.Link href="/add">New Post</Nav.Link>
             <Nav.Link onClick={()=> signOut(auth)}>🚪</Nav.Link>
@@ -67,7 +80,8 @@ export default function PostPageDetails() {
           <Col>
             <Card>
               <Card.Body>
-                <Card.Text>{caption}</Card.Text>
+                <Card.Title>{caption}</Card.Title>
+                <Card.Text className="bg-info m-2 p-3 rounded">{comment}</Card.Text>
                 <Card.Link href={`/update/${id}`}>Edit</Card.Link>
                 <Card.Link
                   onClick={() => deletePost(id)}
@@ -75,6 +89,14 @@ export default function PostPageDetails() {
                 >
                   Delete
                 </Card.Link>
+
+                <Card.Link
+                  onClick={() => likePost(id)}
+                  style={{ cursor: "pointer" }}
+                >
+                  Like
+                </Card.Link>
+
               </Card.Body>
             </Card>
           </Col>

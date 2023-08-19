@@ -29,9 +29,9 @@ export default function PostPageHome() {
 
   return (
     <>
-      <Navbar variant="light" bg="light">
+      <Navbar variant="light" bg="light" >
         <Container>
-          <Navbar.Brand href="/">Tinkergram</Navbar.Brand>
+          <Navbar.Brand href="/" style={{color:"#FF0088", fontSize:"3rem", fontFamily: "Brush Script MT, cursive"  }} >Tinkergram</Navbar.Brand>
           <Nav>
             <Nav.Link href="/add">New Post</Nav.Link>
             {user && <Nav.Link onClick={() => signOut(auth)}>🚪</Nav.Link> }
@@ -60,10 +60,11 @@ function ImageSquare({ post }) {
     >
       <Image
         src={image}
+        className="block-example border border-primary rounded mb-0"
         style={{
-          objectFit: "cover",
+          objectFit: "contain",
           width: "18rem",
-          height: "18rem",
+          height: "18rem"
         }}
       />
     </Link>

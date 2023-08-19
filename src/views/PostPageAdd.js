@@ -13,6 +13,7 @@ export default function PostPageAdd() {
   const [caption, setCaption] = useState("");
   const [image, setImage] = useState("");
   const [previewImage, setPreviewImage] = useState("https://zca.sg/img/placeholder");
+  const [comment, setComment] = useState("");
   const navigate = useNavigate();
 
 
@@ -24,7 +25,7 @@ export default function PostPageAdd() {
     const response = await uploadBytes(imageReference, image);
     const imageUrl = await getDownloadURL(response.ref);
 
-    await addDoc(collection(db, "posts"), {caption, image: imageUrl, imageName: timestamp + image.name});
+    await addDoc(collection(db, "posts"), {caption, image: imageUrl, imageName: timestamp+image.name, comment});
     navigate("/");
 
   }
@@ -39,7 +40,7 @@ export default function PostPageAdd() {
     <>
       <Navbar variant="light" bg="light">
         <Container>
-          <Navbar.Brand href="/">Tinkergram</Navbar.Brand>
+          <Navbar.Brand href="/"  style={{color:"#FF0088", fontSize:"3rem", fontFamily: "Brush Script MT, cursive"  }} >Tinkergram</Navbar.Brand>
           <Nav>
             <Nav.Link href="/add">New Post</Nav.Link>
             <Nav.Link onClick={()=> signOut(auth)}>🚪</Nav.Link>
@@ -61,7 +62,7 @@ export default function PostPageAdd() {
           <Image
             src={previewImage}
             style = {{
-                objectFit: "cover",
+                objectFit: "contain",
                 width: "10rem",
                 height: "10rem"
             }}
@@ -82,6 +83,19 @@ export default function PostPageAdd() {
               }
             />
           </Form.Group>
+
+          <Form.Group className="mb-3" controlId="comment">
+            <Form.Label>Comment</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows = {3}
+              placeholder="#Comments"
+              value={comment}
+              onChange={(text) => setComment(text.target.value)}
+            />
+          </Form.Group>
+
+
           <Button variant="primary" onClick={async (e) => addPost()}>
             Submit
           </Button>
