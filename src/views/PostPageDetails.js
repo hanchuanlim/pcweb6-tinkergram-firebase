@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db, storage } from "../firebase";
 import { signOut } from "firebase/auth";
-import { deleteDoc, doc, collection, getDoc, getDocs, addDoc, setDoc, updateDoc, query, where } from "firebase/firestore";
+import { deleteDoc, doc, collection, getDoc, getDocs, updateDoc, setDoc, query, where } from "firebase/firestore";
 import { ref, deleteObject } from "firebase/storage";
 
 export default function PostPageDetails() {
@@ -32,6 +32,7 @@ export default function PostPageDetails() {
         // The "likes" sub-collection doesn't exist, create it
         await setDoc(doc(likesCollectionRef), {uid: user.uid, email: user.email, displayName: user.displayName});
         setLikeCount(1);
+        await updateDoc(postDocumentRef, {liked: 1});
 
       } else {
 
@@ -46,6 +47,7 @@ export default function PostPageDetails() {
           await setDoc(likeDocRef, {uid: user.uid, email: user.email, displayName: user.displayName});
           // await setDoc(doc(likesCollectionRef), { like: [user.uid, user.email] });
           setLikeCount(likesCollectionSnapshot.size+1);
+          await updateDoc(postDocumentRef, {liked: likesCollectionSnapshot.size+1});
 
           // const element = document.getElementById("like-link");
 
@@ -60,6 +62,7 @@ export default function PostPageDetails() {
           try {
             await deleteDoc(likeDocRef);
             setLikeCount(likesCollectionSnapshot.size-1);
+            await updateDoc(postDocumentRef, {liked: likesCollectionSnapshot.size-1});
             element.style.fontWeight = "normal";
 
           } catch (error) {
@@ -83,6 +86,8 @@ export default function PostPageDetails() {
     // const likescollection = postDocument.collection("likes");
     // await likescollection.add({like: user});
     // await updateDoc(doc(db, "posts", id), { likecount: likescollection.count()});
+
+
 
   }
 
@@ -180,8 +185,8 @@ export default function PostPageDetails() {
                   style={{ cursor: "pointer" }}
                   id="like-link"
                 >
-                  Like 
-                  {`(${likeCount})`}
+                  Like  
+                  {` (${likeCount})`}
                 </Card.Link>
 
               </Card.Body>

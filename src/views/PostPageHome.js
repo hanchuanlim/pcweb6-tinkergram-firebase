@@ -10,6 +10,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 export default function PostPageHome() {
   const [user] = useAuthState(auth);
   const [posts, setPosts] = useState([]);
+ // const [liked, setLiked] = useState(0);
   const navigate = useNavigate();
 
    async function getAllPosts() {
@@ -17,6 +18,9 @@ export default function PostPageHome() {
     const posts = query.docs.map((doc) => {
         return { id: doc.id, ...doc.data()};
     })
+
+    // Sort the posts array by the "liked" field
+    posts.sort((a, b) => b.liked - a.liked);
     setPosts(posts);
   }
 
@@ -59,6 +63,7 @@ export default function PostPageHome() {
 function ImageSquare({ post }) {
   const { image, id } = post;
   return (
+    <>
     <Link
       to={`post/${id}`}
       style={{
@@ -76,6 +81,9 @@ function ImageSquare({ post }) {
           height: "18rem"
         }}
       />
+      <div>Like ({post.liked||0})</div>
     </Link>
+
+    </>
   );
 }
