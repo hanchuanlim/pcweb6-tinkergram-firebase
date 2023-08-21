@@ -60,6 +60,7 @@ export default function PostPageDetails() {
           try {
             await deleteDoc(likeDocRef);
             setLikeCount(likesCollectionSnapshot.size-1);
+            element.style.fontWeight = "normal";
 
           } catch (error) {
             console.error(error.message);
