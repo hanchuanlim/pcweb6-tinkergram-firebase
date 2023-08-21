@@ -13,6 +13,7 @@ export default function PostPageDetails() {
   const [imageName, setImageName] = useState("");
   const [comment, setComment] = useState("");
   const [likeCount, setLikeCount] = useState(0);
+  const [likedUsers, setLikedUsers] = useState("");
   const params = useParams();
   const id = params.id;
   const [user, loading] = useAuthState(auth);
@@ -33,14 +34,22 @@ export default function PostPageDetails() {
         await setDoc(doc(likesCollectionRef), {uid: user.uid, email: user.email, displayName: user.displayName});
         setLikeCount(1);
         await updateDoc(postDocumentRef, {liked: 1});
+        // setLikedUsers("You liked this post!");
 
       } else {
 
         const q = query(likesCollectionRef, where("uid", "==", user.uid));
         const likesSnapshot = await getDocs(q);
+
         const element = document.getElementById("like-link");
 
-        
+        // let displayNames = [];
+        // likesCollectionSnapshot.forEach((doc) => {
+        //  const userData = doc.data();
+        //  displayNames.push(userData.displayName);
+        // });
+        // const joinedDisplayNames = displayNames.join(", ");
+
 
         if (likesSnapshot.empty) {
           const likeDocRef = doc(likesCollectionRef); 
@@ -48,8 +57,8 @@ export default function PostPageDetails() {
           // await setDoc(doc(likesCollectionRef), { like: [user.uid, user.email] });
           setLikeCount(likesCollectionSnapshot.size+1);
           await updateDoc(postDocumentRef, {liked: likesCollectionSnapshot.size+1});
+          // setLikedUsers(`You, ${joinedDisplayNames} liked this.`);
 
-          // const element = document.getElementById("like-link");
 
           // Add styles to the element
           // element.style.color = "red";
@@ -64,6 +73,7 @@ export default function PostPageDetails() {
             setLikeCount(likesCollectionSnapshot.size-1);
             await updateDoc(postDocumentRef, {liked: likesCollectionSnapshot.size-1});
             element.style.fontWeight = "normal";
+            // setLikedUsers(`${joinedDisplayNames} liked this`);
 
           } catch (error) {
             console.error(error.message);
@@ -121,6 +131,13 @@ export default function PostPageDetails() {
     const likesCollectionRef = collection(postDocumentRef, "likes");
     const likesCollectionSnapshot = await getDocs(likesCollectionRef);
 
+    let displayNames = [];
+    likesCollectionSnapshot.forEach((doc) => {
+      const userData = doc.data();
+      (userData.uid!==user.uid) && displayNames.push(userData.displayName);
+    });
+    const joinedDisplayNames = displayNames.join(", ");
+
     if (!likesCollectionSnapshot.empty) {
       setLikeCount(likesCollectionSnapshot.size);
 
@@ -128,12 +145,18 @@ export default function PostPageDetails() {
       const q = query(likesCollectionRef, where("uid", "==", user.uid));
       const likesSnapshot = await getDocs(q);
       
-      if (!likesSnapshot.empty) {
+      if (likesSnapshot.empty) {
         const element = document.getElementById("like-link");
-        element.style.fontWeight = "bold";
+        element.style.fontWeight = "normal";
+        setLikedUsers(`${joinedDisplayNames} liked this`);
 
       }
+      else {
+        const element = document.getElementById("like-link");
+        element.style.fontWeight = "bold";
+        setLikedUsers(`you, ${joinedDisplayNames} liked this`);
 
+      }
 
     }
 
@@ -144,7 +167,7 @@ export default function PostPageDetails() {
     if (loading) return;
     if (!user) return navigate("/login");
     getPost(id);
-  }, [id, loading, user, navigate, likeCount]);
+  }, [id, loading, user, navigate, setLikedUsers, likeCount]);
 
 
   return (
@@ -186,8 +209,12 @@ export default function PostPageDetails() {
                   id="like-link"
                 >
                   Like  
-                  {` (${likeCount})`}
+                  {` (${likeCount})`} 
                 </Card.Link>
+
+                <Card.Text>
+                  {likedUsers}
+                </Card.Text>
 
               </Card.Body>
             </Card>
