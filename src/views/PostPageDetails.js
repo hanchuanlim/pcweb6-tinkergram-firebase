@@ -79,25 +79,14 @@ export default function PostPageDetails() {
             console.error(error.message);
           }
 
-          
-
         }
-
       
       }
     }
     else {
-
+      // missing post
 
     } 
-
-
-    // const postDocument = await getDoc(doc(db, "posts", id));
-    // const likescollection = postDocument.collection("likes");
-    // await likescollection.add({like: user});
-    // await updateDoc(doc(db, "posts", id), { likecount: likescollection.count()});
-
-
 
   }
 
