@@ -142,7 +142,7 @@ export default function PostPageDetails() {
 
       likesCollectionSnapshot.forEach((doc) => {
         const userData = doc.data();
-        displayNames.push(userData.displayName);
+        // displayNames.push(userData.displayName);
         (userData.uid===user.uid)? userliked = true : displayNames.push(userData.displayName);
       });
 
