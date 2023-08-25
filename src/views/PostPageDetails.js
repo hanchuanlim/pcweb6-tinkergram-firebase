@@ -131,33 +131,44 @@ export default function PostPageDetails() {
     const likesCollectionRef = collection(postDocumentRef, "likes");
     const likesCollectionSnapshot = await getDocs(likesCollectionRef);
 
-    let displayNames = [];
-    likesCollectionSnapshot.forEach((doc) => {
-      const userData = doc.data();
-      (userData.uid!==user.uid) && displayNames.push(userData.displayName);
-    });
-    const joinedDisplayNames = displayNames.join(", ");
-
+    
     if (!likesCollectionSnapshot.empty) {
+
+      
       setLikeCount(likesCollectionSnapshot.size);
 
+      let displayNames = [];
+      let userliked = false;
 
-      const q = query(likesCollectionRef, where("uid", "==", user.uid));
-      const likesSnapshot = await getDocs(q);
+      likesCollectionSnapshot.forEach((doc) => {
+        const userData = doc.data();
+        displayNames.push(userData.displayName);
+        (userData.uid===user.uid)? userliked = true : displayNames.push(userData.displayName);
+      });
+
+  
+      const joinedDisplayNames = displayNames.join(", ");
+
       
-      if (likesSnapshot.empty) {
-        const element = document.getElementById("like-link");
-        element.style.fontWeight = "normal";
-        setLikedUsers(`${joinedDisplayNames} liked this`);
+      if (userliked) {
 
-      }
-      else {
         const element = document.getElementById("like-link");
         element.style.fontWeight = "bold";
         setLikedUsers(`you, ${joinedDisplayNames} liked this`);
 
       }
+      else {
+        
+        const element = document.getElementById("like-link");
+        element.style.fontWeight = "normal";
+        setLikedUsers(`${joinedDisplayNames} liked this`);
 
+      }
+
+
+    }
+    else {
+      setLikedUsers("");
     }
 
 
@@ -167,7 +178,7 @@ export default function PostPageDetails() {
     if (loading) return;
     if (!user) return navigate("/login");
     getPost(id);
-  }, [id, loading, user, navigate, setLikedUsers, likeCount]);
+  }, [id, loading, user, navigate, setLikedUsers, likeCount]); 
 
 
   return (
